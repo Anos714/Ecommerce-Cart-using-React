@@ -1,55 +1,67 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import useFetch from "../custom hooks/useFetch";
-import Header from "../components/Header";
-import { GlobalContext } from "../context/Index";
 import Loader from "../components/Loader";
+import Header from "../components/Header";
+import ProductTile from "../components/product/ProductTile";
 
 const Product = () => {
-  const { data, error, isLoading } = useFetch("https://dummyjson.com/products");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(9);
+  const skip = (currentPage - 1) * itemsPerPage;
+  const { data, isLoading, error } = useFetch(
+    `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${skip}`
+  );
+
   if (isLoading) return <Loader />;
   if (error) return <h1>{error.message}</h1>;
-  // console.log(data);
 
-  const { handleCartFunctionality, showProductDetails } =
-    useContext(GlobalContext);
+  const currentProducts = data?.products;
+  const totalPages = Math.ceil((data?.total || 0) / itemsPerPage);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div>
+    <div className="bg-green-100/20 flex flex-col gap-5 ">
       <Header />
-      <div className="my-8 flex flex-wrap gap-8 justify-center">
-        {data?.products?.length > 0 &&
-          data?.products?.map((product) => (
-            <div
-              className="bg-blue-500/20 text-center shadow-xl shadow-blue-500/20 rounded-md flex flex-col items-center gap-5 h-full w-[300px] py-5 px-5"
-              key={product.id}
-            >
-              <div>
-                <h1>{product.title}</h1>
-              </div>
+      <div>
+        <div className="flex justify-center gap-4 mt-8 mb-8">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-100"
+          >
+            Prev
+          </button>
 
-              <img
-                src={product.thumbnail}
-                alt="product"
-                loading="lazy"
-                className="h-[200px] w-[200px]"
-              />
-              <div>
-                <h3>Price - {product.price}</h3>
-              </div>
-              <button
-                onClick={() => handleCartFunctionality(product)}
-                className="bg-blue-600/50 rounded-sm h-[45px] w-[150px] text-white font-semibold hover:scale-105 transition-all "
-              >
-                Add to cart
-              </button>
-              <button
-                onClick={() => showProductDetails(product?.id)}
-                className="bg-blue-600/50 rounded-sm h-[45px] w-[150px] text-white font-semibold hover:scale-105 transition-all "
-              >
-                Details
-              </button>
-            </div>
-          ))}
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-100"
+          >
+            Next
+          </button>
+        </div>
+        <ProductTile productItems={currentProducts} />
+        <div className="flex justify-center gap-4 mt-8 mb-8">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-100"
+          >
+            Prev
+          </button>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-100"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

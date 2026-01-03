@@ -1,27 +1,28 @@
 import React, { useContext } from "react";
+import { IoCartOutline } from "react-icons/io5";
+import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { GlobalContext } from "../context/Index";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { cartDetails } = useContext(GlobalContext);
+  const { cartItems } = useContext(GlobalContext);
   return (
-    <div className="sticky top-0 flex justify-around items-center h-[70px] bg-blue-500/10">
+    <div className="h-[70px] bg-green-300/10 border-b-1 border-green-300/30 flex justify-around items-center">
       <div>
-        <h1
-          className="text-xl font-bold text-blue-700 cursor-pointer"
-          onClick={() => navigate("/products")}
-        >
-          Bazar
-        </h1>
+        <img
+          src={logo}
+          alt="logo"
+          className="w-[120px] cursor-pointer"
+          onClick={() => navigate("/")}
+        />
       </div>
-      <div>
-        <button
-          onClick={() => navigate("/cart")}
-          className="bg-blue-600/50 text-white h-[45px] w-[150px] text-xl font-semibold rounded-md hover:scale-105 transition-all"
-        >
-          Cart {cartDetails.length > 0 ? cartDetails.length : null}
-        </button>
+      <div
+        className="relative cursor-pointer"
+        onClick={() => navigate("/cart")}
+      >
+        <IoCartOutline className="text-[2.5rem]" />
+        <p className="absolute -top-3 right-0">{cartItems.length}</p>
       </div>
     </div>
   );
